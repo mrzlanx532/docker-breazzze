@@ -1,0 +1,45 @@
+networks:
+  breazzze:
+
+services:
+  strapi:
+    container_name: strapi
+    build:
+      context: ../breazzze-strapi
+      dockerfile: ../breazzze-docker/${APP_ENVIRONMENT}/strapi.dockerfile
+    volumes:
+      - ../breazzze-strapi/public/uploads:/usr/app/public/uploads
+      - ../breazzze-strapi/.env:/usr/app/.env
+    depends_on:
+      - postgres
+    ports:
+      - "${STRAPI_EXTERNAL_PORT}:1337"
+      - "5173:5173"
+    networks:
+      - breazzze
+  nuxt:
+    container_name: nuxt
+    build:
+      context: ../breazzze-nuxt
+      dockerfile: ../breazzze-docker/${APP_ENVIRONMENT}/nuxt.dockerfile
+    depends_on:
+      - postgres
+    ports:
+      - "${NUXT_EXTERNAL_PORT}:3000"
+    networks:
+      - breazzze
+  postgres:
+    container_name: postgres
+    image: 'postgres:12.2'
+    environment:
+      POSTGRES_USER: breazzze
+      POSTGRES_PASSWORD: breazzze
+      PGDATA: /data/postgres
+    volumes:
+      - ./volumes/postgres/data:/data/postgres
+      - ./volumes/postgres/scripts:/docker-entrypoint-initdb.d
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT}:5432"
+    networks:
+      - breazzze
+    restart: unless-stopped

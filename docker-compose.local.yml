@@ -1,0 +1,19 @@
+networks:
+  breazzze:
+
+services:
+  postgres:
+    container_name: postgres
+    image: 'postgres:12.2'
+    environment:
+      POSTGRES_USER: breazzze
+      POSTGRES_PASSWORD: breazzze
+      PGDATA: /data/postgres
+    volumes:
+      - ./volumes/postgres/data:/data/postgres
+      - ./volumes/postgres/scripts:/docker-entrypoint-initdb.d
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT}:5432"
+    networks:
+      - breazzze
+    restart: unless-stopped
